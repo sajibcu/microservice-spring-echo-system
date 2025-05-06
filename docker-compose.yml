@@ -1,0 +1,127 @@
+version: '3.8'
+
+services:
+
+  userservice-db:
+    image: postgres:16
+    container_name: userservice-db
+    environment:
+      POSTGRES_DB: userservice_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "6601:5432"  # External port starts with 6
+    networks:
+      - backend
+
+  productservice-db:
+    image: postgres:16
+    container_name: productservice-db
+    environment:
+      POSTGRES_DB: productservice_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "6602:5432"
+    networks:
+      - backend
+
+  saleservice-db:
+    image: postgres:16
+    container_name: saleservice-db
+    environment:
+      POSTGRES_DB: saleservice_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "6603:5432"
+    networks:
+      - backend
+
+  eureka-server:
+    build:
+      context: ./servicediscovery
+      dockerfile: Dockerfile
+    container_name: eureka-server
+    ports:
+      - "9000:8761"
+    environment:
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=false
+      - EUREKA_CLIENT_FETCH_REGISTRY=false
+    networks:
+      - backend
+
+
+  userservice:
+    build:
+      context: ./userservice
+      dockerfile: Dockerfile
+    container_name: userservice
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: 'http://eureka-server:8761/eureka'
+      SPRING_DATASOURCE_URL: jdbc:postgresql://userservice-db:5432/userservice_db
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
+    ports:
+      - "8081:8080"
+    depends_on:
+      - userservice-db
+      - eureka-server
+    networks:
+      - backend
+
+  productservice:
+    build:
+      context: ./productservice
+      dockerfile: Dockerfile
+    container_name: productservice
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      SPRING_DATASOURCE_URL: jdbc:postgresql://productservice-db:5432/productservice_db
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
+    ports:
+      - "8082:8080"
+    depends_on:
+      - productservice-db
+      - eureka-server
+    networks:
+      - backend
+
+  saleservice:
+    build:
+      context: ./salesservice
+      dockerfile: Dockerfile
+    container_name: saleservice
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      SPRING_DATASOURCE_URL: jdbc:postgresql://saleservice-db:5432/saleservice_db
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
+    ports:
+      - "8083:8080"
+    depends_on:
+      - saleservice-db
+      - eureka-server
+    networks:
+      - backend
+
+  apigateway:
+    build:
+      context: ./apigateway
+      dockerfile: Dockerfile
+    container_name: apigateway
+    ports:
+      - "1001:1001"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+    depends_on:
+      - eureka-server
+      - userservice
+      - productservice
+      - saleservice
+    networks:
+      - backend
+
+networks:
+  backend:

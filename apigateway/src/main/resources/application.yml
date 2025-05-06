@@ -1,0 +1,35 @@
+server:
+  port: 1001
+
+eureka:
+  client:
+    service-url:
+      defaultZone: '${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka}'
+    register-with-eureka: true
+    fetch-registry: true
+    registry-fetch-interval-seconds: 5
+  instance:
+    prefer-ip-address: true
+
+spring:
+  application:
+    name: apigateway
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: lb://USERSERVICE
+          predicates:
+            - Path=/api/v1/user/**
+        - id: sales-service
+          uri: lb://SALESSERVICE
+          predicates:
+            - Path=/api/v1/sales/**
+        - id: product-service
+          uri: lb://PRODUCTSERVICE
+          predicates:
+            - Path=/api/v1/product/**
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
