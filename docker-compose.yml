@@ -11,6 +11,8 @@ services:
       POSTGRES_PASSWORD: password
     ports:
       - "6601:5432"  # External port starts with 6
+    volumes:
+      - ./userservice-db-data:/var/lib/postgresql/data
     networks:
       - backend
 
@@ -23,6 +25,8 @@ services:
       POSTGRES_PASSWORD: password
     ports:
       - "6602:5432"
+    volumes:
+      - ./productservice-db-data:/var/lib/postgresql/data
     networks:
       - backend
 
@@ -35,6 +39,8 @@ services:
       POSTGRES_PASSWORD: password
     ports:
       - "6603:5432"
+    volumes:
+      - ./salesservice-db-data:/var/lib/postgresql/data
     networks:
       - backend
 
@@ -44,7 +50,7 @@ services:
       dockerfile: Dockerfile
     container_name: eureka-server
     ports:
-      - "9000:8761"
+      - "8761:8761"
     environment:
       - EUREKA_CLIENT_REGISTER_WITH_EUREKA=false
       - EUREKA_CLIENT_FETCH_REGISTRY=false
