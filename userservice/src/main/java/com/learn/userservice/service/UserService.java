@@ -2,12 +2,13 @@ package com.learn.userservice.service;
 
 import com.learn.userservice.model.Users;
 import com.learn.userservice.repository.UsersRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
+@Slf4j
 @Service
 public class UserService {
 
@@ -16,12 +17,21 @@ public class UserService {
 
     // Create a new user
     public Users createUser(Users user) {
+        log.info("Creating a new user: {}", user);
         return usersRepository.save(user);
     }
 
     // Get a user by ID
-    public Optional<Users> getUserById(Long id) {
-        return usersRepository.findById(id);
+    public Users getUserById(Long id) {
+        log.info("Fetching user with id: {}", id);
+        return usersRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+    }
+
+    public Users getUserByEmail(String email) {
+        log.info("Fetching user with email: {}", email);
+        return usersRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
     }
 
     // Get all users
@@ -31,6 +41,7 @@ public class UserService {
 
     // Update an existing user
     public Users updateUser(Long id, Users updatedUser) {
+        log.info("Updating user with id: {}", id);
         return usersRepository.findById(id).map(user -> {
             user.setName(updatedUser.getName());
             user.setEmail(updatedUser.getEmail());
@@ -43,6 +54,7 @@ public class UserService {
 
     // Delete a user by ID
     public void deleteUser(Long id) {
+        log.info("Deleting user with id: {}", id);
         usersRepository.deleteById(id);
     }
 }

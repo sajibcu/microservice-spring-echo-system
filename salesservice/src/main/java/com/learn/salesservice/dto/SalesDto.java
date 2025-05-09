@@ -14,6 +14,6 @@ import java.time.LocalDateTime;
 public class SalesDto {
     private Long id;
     private ProductDto product;
-    private String salesTo;
+    private UserDto salesTo;
     private LocalDateTime salesDate;
 }
