@@ -30,7 +30,7 @@ This project implements a microservice architecture with the following component
 | Service | Port | Database Port |
 |---------|------|--------------|
 | API Gateway | 1001 | - |
-| Eureka Server | 9000 | - |
+| Eureka Server | 8761 | - |
 | User Service | 8081 | 6601 |
 | Product Service | 8082 | 6602 |
 | Sales Service | 8083 | 6603 |
