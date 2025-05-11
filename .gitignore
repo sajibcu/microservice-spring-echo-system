@@ -1,0 +1,86 @@
+### Java ###
+*.class
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+replay_pid*
+
+### Gradle ###
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+**/build/
+.gradletasknamecache
+
+### Maven ###
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+### VS Code ###
+.vscode/
+*.code-workspace
+
+### Spring Boot ###
+**/application-*.yml
+**/application-*.properties
+!**/application.yml
+!**/application.properties
+
+### Database ###
+*.db
+*.sqlite
+/userservice-db-data/
+/productservice-db-data/
+/salesservice-db-data/
+
+### Docker ###
+.env
+docker-compose.override.yml
+
+### Logs ###
+logs/
+*.log
+
+### OS specific ###
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+.directory
+
+### Test Coverage ###
+coverage/
+.coverage
+coverage.xml
+*.cover
+
+### Project Specific ###
+HELP.md
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

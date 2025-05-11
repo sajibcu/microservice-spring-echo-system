@@ -6,15 +6,18 @@ import com.learn.salesservice.dto.UserDto;
 import com.learn.salesservice.model.Sales;
 import com.learn.salesservice.repository.SalesRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
 
-@Slf4j
 @Service
 public class SalesService {
+
+    private static final Logger log = LoggerFactory.getLogger(SalesService.class);
 
     private final SalesRepository salesRepository;
     private final WebClient webClient;

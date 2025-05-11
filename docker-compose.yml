@@ -44,6 +44,74 @@ services:
     networks:
       - backend
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.12.0
+    container_name: logstash
+    volumes:
+      - type: bind
+        source: ./elk/logstash/config/logstash.yml
+        target: /usr/share/logstash/config/logstash.yml
+        read_only: true
+      - type: bind
+        source: ./elk/logstash/pipeline
+        target: /usr/share/logstash/pipeline
+        read_only: true
+    ports:
+      - "5044:5044"
+      - "5000:5000/tcp"
+      - "5000:5000/udp"
+      - "9600:9600"
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    networks:
+      - backend
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.12.0
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+    networks:
+      - backend
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5601/api/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   eureka-server:
     build:
       context: ./servicediscovery
@@ -56,7 +124,6 @@ services:
       - EUREKA_CLIENT_FETCH_REGISTRY=false
     networks:
       - backend
-
 
   userservice:
     build:
@@ -73,6 +140,7 @@ services:
     depends_on:
       - userservice-db
       - eureka-server
+      - logstash
     networks:
       - backend
 
@@ -91,6 +159,7 @@ services:
     depends_on:
       - productservice-db
       - eureka-server
+      - logstash
     networks:
       - backend
 
@@ -109,6 +178,7 @@ services:
     depends_on:
       - saleservice-db
       - eureka-server
+      - logstash
     networks:
       - backend
 
@@ -126,8 +196,11 @@ services:
       - userservice
       - productservice
       - saleservice
+      - logstash
     networks:
       - backend
 
 networks:
   backend:
+volumes:
+  esdata:
