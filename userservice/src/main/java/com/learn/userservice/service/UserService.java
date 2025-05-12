@@ -1,16 +1,19 @@
 package com.learn.userservice.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.learn.userservice.model.Users;
 import com.learn.userservice.repository.UsersRepository;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Slf4j
 @Service
 public class UserService {
+
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
+
 
     @Autowired
     private UsersRepository usersRepository;
