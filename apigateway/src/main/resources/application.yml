@@ -1,5 +1,8 @@
 server:
   port: 1001
+app:
+  auth-service:
+    url: http://AUTHSERVICE
 
 eureka:
   client:
@@ -17,18 +20,30 @@ spring:
   cloud:
     gateway:
       routes:
+        - id: auth-service
+          uri: lb://AUTHSERVICE
+          predicates:
+            - Path=/api/v1/auth/**
+          filters:
+            - AuthenticationFilter
         - id: user-service
           uri: lb://USERSERVICE
           predicates:
             - Path=/api/v1/user/**
+          filters:
+            - AuthenticationFilter
         - id: sales-service
           uri: lb://SALESSERVICE
           predicates:
             - Path=/api/v1/sales/**
+          filters:
+            - AuthenticationFilter
         - id: product-service
           uri: lb://PRODUCTSERVICE
           predicates:
             - Path=/api/v1/product/**
+          filters:
+            - AuthenticationFilter
 
 logging:
   level:

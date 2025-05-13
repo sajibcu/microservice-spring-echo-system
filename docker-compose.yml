@@ -143,6 +143,25 @@ services:
     networks:
       - backend
 
+  authservice:
+    build:
+      context: ./authService
+      dockerfile: Dockerfile
+    container_name: authservice
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      SPRING_DATASOURCE_URL: jdbc:postgresql://userservice-db:5432/userservice_db
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
+    ports:
+      - "8084:8080"
+    depends_on:
+      - userservice-db
+      - eureka-server
+      - logstash
+    networks:
+      - backend
+
   productservice:
     build:
       context: ./productservice
