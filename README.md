@@ -15,34 +15,35 @@ This project implements a microservice architecture with Spring Boot, featuring:
 ```
                            │
                            ▼
-                    [API Gateway:1001]
-                           │
-                    [Eureka Server]
-                           │
-            ┌──────────────┼──────────────┐
-            ▼              ▼              ▼
-    [User Service]  [Product Service] [Sales Service]
-            │              │              │
-            ▼              ▼              ▼
-    [UserService DB] [ProductService DB] [SalesService DB]
-            │              │              │
-            └──────────────┼──────────────┘
+                    [API Gateway:1001] ───────── [Auth Service]──
+                           │                                   │
+                    [Eureka Server]                            │
+                           │                                   │
+            ┌──────────────┼──────────────┐                    │
+            ▼              ▼              ▼                    │
+    [User Service]  [Product Service] [Sales Service]          │
+            │              │              │                    │
+            ▼              ▼              ▼                    │
+    [UserService DB] [ProductService DB] [SalesService DB]     │
+            │              │              │                    │
+            └──────────────┼──────────────┘─────────────────────
                           ▼
                     [ELK Stack]
 ```
 
 ## Services & Ports
 
-| Service | Port | Database Port | Description |
-|---------|------|--------------|-------------|
-| API Gateway | 1001 | - | Spring Cloud Gateway |
-| Eureka Server | 8761 | - | Service Discovery |
-| User Service | 8081 | 6601 | User Management |
-| Product Service | 8082 | 6602 | Product Catalog |
-| Sales Service | 8083 | 6603 | Order Management |
-| Elasticsearch | 9200, 9300 | - | Search & Analytics |
-| Logstash | 5000, 5044, 9600 | - | Log Ingestion |
-| Kibana | 5601 | - | Log Visualization |
+| Service         | Port             | Database Port | Description |
+|-----------------|------------------|---------------|-------------|
+| API Gateway     | 1001             | -             | Spring Cloud Gateway |
+| Eureka Server   | 8761             | -             | Service Discovery |
+| Auth Service    | 8084             | -             | User Management |
+| User Service    | 8081             | 6601          | User Management |
+| Product Service | 8082             | 6602          | Product Catalog |
+| Sales Service   | 8083             | 6603          | Order Management |
+| Elasticsearch   | 9200, 9300       | -             | Search & Analytics |
+| Logstash        | 5000, 5044, 9600 | -             | Log Ingestion |
+| Kibana          | 5601             | -             | Log Visualization |
 
 ## Prerequisites
 - Docker and Docker Compose
@@ -70,9 +71,20 @@ docker-compose up -d --build
 - User Service: http://localhost:8081
 - Product Service: http://localhost:8082
 - Sales Service: http://localhost:8083
+- Auth Service: http://localhost:8084
 - Kibana: http://localhost:5601
 
 ## API Documentation
+
+POST   /api/v1/auth/register       # Register new user
+GET   /api/v1/auth/token           # Generate JWT token
+GET   /api/v1/auth/validate        # Validate JWT token
+```
+
+### Protected Endpoints
+All service endpoints except authentication endpoints require a valid JWT token in the Authorization header:
+```
+Authorization: Bearer <jwt_token>
 
 ### User Service
 ```

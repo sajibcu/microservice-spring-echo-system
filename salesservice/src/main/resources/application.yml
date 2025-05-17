@@ -1,0 +1,66 @@
+app:
+  product-service:
+    url: http://PRODUCTSERVICE
+  user-service:
+    url: http://USERSERVICE
+
+spring:
+  application:
+    name: SALESSERVICE
+  datasource:
+    url: "${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:6603/saleservice_db}"
+    username: user
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+eureka:
+  client:
+    service-url:
+      defaultZone: "${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka}"
+  instance:
+    prefer-ip-address: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      productService:
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 1
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        recordExceptions:
+          - java.io.IOException
+          - java.lang.Exception
+          - java.lang.RuntimeException
+  timelimiter:
+    instances:
+      productService:
+        timeoutDuration: 2s
+
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%X{correlationId}] %-5level %logger{36} - %msg%n"
+  level:
+    org:
+      springframework:
+        web: ERROR
+    io.github.resilience4j: DEBUG
+    com:
+      netflix:
+        eureka: ERROR
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always

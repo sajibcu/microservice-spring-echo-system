@@ -17,6 +17,7 @@ public class AuthController {
 
     @GetMapping("/token")
     public String getToken(UserCredentialDTO userCredentialDTO) {
+        // todo: validate user credentials with database not done
         return authService.generateToken(userCredentialDTO.getUsername());
     }
 

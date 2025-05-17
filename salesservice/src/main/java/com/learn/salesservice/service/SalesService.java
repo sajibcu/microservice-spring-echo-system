@@ -5,14 +5,18 @@ import com.learn.salesservice.dto.SalesDto;
 import com.learn.salesservice.dto.UserDto;
 import com.learn.salesservice.model.Sales;
 import com.learn.salesservice.repository.SalesRepository;
-import lombok.extern.slf4j.Slf4j;
+
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class SalesService {
@@ -22,15 +26,18 @@ public class SalesService {
     private final SalesRepository salesRepository;
     private final WebClient webClient;
 
+    private final ProductService productService;
+
     @Value("${app.product-service.url}")
     private String PRODUCTSERVICE_URL;
 
     @Value("${app.user-service.url}")
     private String USERSERVICE_URL;
 
-    SalesService(SalesRepository salesRepository, WebClient.Builder webClientBuilder) {
+    SalesService(SalesRepository salesRepository, WebClient.Builder webClientBuilder, ProductService productService) {
         this.salesRepository = salesRepository;
         this.webClient = webClientBuilder.build();
+        this.productService = productService;
     }
 
     // Create a new Sales record
@@ -46,7 +53,7 @@ public class SalesService {
                 .map(sales -> {
                     return SalesDto.builder()
                             .id( sales.getId() )
-                            .product( getProductById(sales.getProductId()) )
+                            .product( this.productService.getProductById(sales.getProductId()).join() )
                             .salesTo(getUserByEmail(sales.getSalesTo()) )
                             .salesDate(sales.getSalesDate())
                             .build();
@@ -63,7 +70,7 @@ public class SalesService {
         return salesRepository.findById(id)
                 .map(sales -> SalesDto.builder()
                         .id( sales.getId() )
-                        .product( getProductById(sales.getProductId()) )
+                        .product( this.productService.getProductById(sales.getProductId()).join() )
                         .salesTo( getUserByEmail(sales.getSalesTo()) )
                         .salesDate(sales.getSalesDate())
                         .build())
@@ -74,18 +81,6 @@ public class SalesService {
     public void deleteSales(Long id) {
         log.info("Deleting sales record with id: {}", id);
         salesRepository.deleteById(id);
-    }
-
-    private ProductDto getProductById(Long productId) {
-        String productServiceUrl = PRODUCTSERVICE_URL + "/api/v1/product/" + productId;
-        log.info("productServiceUrl: {}", productServiceUrl);
-        ProductDto productDto =  webClient.get()
-                .uri(productServiceUrl)
-                .retrieve()
-                .bodyToMono(ProductDto.class)
-                .block();
-        log.info("productDto: {}", productDto);
-        return productDto;
     }
 
     private UserDto getUserByEmail(String email) {
