@@ -13,9 +13,12 @@ public class PingController {
     @Value("${spring.application.name}")
     private String serviceName;
 
+    @Value("${app.version}")
+    private String version;
+
     // This endpoint will return the service name along with a Pong message
     @GetMapping()
     public String ping() {
-        return "Pong from " + serviceName;
+        return "Pong from " + serviceName + " version: " + version;
     }
 }

@@ -1,0 +1,23 @@
+app:
+  version: local
+spring:
+  application:
+    name: PRODUCTSERVICE
+  config:
+    import: configserver:${SPRING_CLOUD_CONFIG_URL:http://localhost:8888}
+  datasource:
+    url: jdbc:postgresql://productservice-db:5432/productservice-db
+    username: user
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: update
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka}
+  instance:
+    prefer-ip-address: true
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%X{correlationId}] %-5level %logger{36} - %msg%n"

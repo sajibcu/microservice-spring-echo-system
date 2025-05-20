@@ -42,6 +42,15 @@ services:
       - ./salesservice-db-data:/var/lib/postgresql/data
     networks:
       - backend
+  configserver:
+    build:
+      context: ./configserver
+      dockerfile: Dockerfile
+    container_name: configserver
+    ports:
+      - "8888:8888"
+    networks:
+      - backend
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
@@ -138,6 +147,7 @@ services:
       - "8081:8080"
     depends_on:
       - userservice-db
+      - configserver
       - eureka-server
       - logstash
     networks:
@@ -156,6 +166,7 @@ services:
     ports:
       - "8084:8080"
     depends_on:
+      - configserver
       - userservice-db
       - eureka-server
       - logstash
@@ -172,9 +183,11 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://productservice-db:5432/productservice_db
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
+      SPRING_CLOUD_CONFIG_URL: http://configserver:8888
     ports:
       - "8082:8080"
     depends_on:
+      - configserver
       - productservice-db
       - eureka-server
       - logstash
@@ -194,6 +207,7 @@ services:
     ports:
       - "8083:8080"
     depends_on:
+      - configserver
       - saleservice-db
       - eureka-server
       - logstash
