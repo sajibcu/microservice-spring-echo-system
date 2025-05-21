@@ -10,3 +10,18 @@ spring:
           username: sajibcu55
           password: your_github_token
           clone-on-start: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true

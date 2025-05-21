@@ -51,6 +51,11 @@ services:
       - "8888:8888"
     networks:
       - backend
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8888"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
@@ -187,10 +192,14 @@ services:
     ports:
       - "8082:8080"
     depends_on:
-      - configserver
-      - productservice-db
-      - eureka-server
-      - logstash
+      configserver:
+        condition: service_healthy
+      productservice-db:
+        condition: service_started
+      eureka-server:
+        condition: service_started
+      logstash:
+        condition: service_started
     networks:
       - backend
 
