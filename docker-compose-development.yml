@@ -140,6 +140,10 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://saleservice-db:5432/saleservice_db
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: user
+      RABBITMQ_PASSWORD: password
     ports:
       - "8083:8080"
     depends_on:
@@ -163,6 +167,17 @@ services:
       - userservice
       - productservice
       - saleservice
+    networks:
+      - backend
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
     networks:
       - backend
 

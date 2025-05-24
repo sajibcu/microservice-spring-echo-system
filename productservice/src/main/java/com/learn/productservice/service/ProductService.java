@@ -57,4 +57,19 @@ public class ProductService {
             throw new RuntimeException("Product not found with id: " + id);
         }
     }
+
+    public void updateProductInventory(Long productId, int quantity) {
+        log.info("Updating product quantity for product ID: {}, new quantity: {}", productId, quantity);
+        Optional<Product> optionalProduct = productRepository.findById(productId);
+        if (optionalProduct.isPresent()) {
+            Product product = optionalProduct.get();
+            int productQuantity = product.getQuantity() == null ? 0 :  product.getQuantity();
+            product.setQuantity(productQuantity + quantity);
+            productRepository.save(product);
+            log.info("Product quantity updated successfully for product ID: {}", productId);
+        } else {
+            log.error("Product not found with ID: {}", productId);
+            throw new RuntimeException("Product not found with id: " + productId);
+        }
+    }
 }

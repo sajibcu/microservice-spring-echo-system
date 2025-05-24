@@ -14,6 +14,14 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+  rabbitmq:
+    host: "${RABBITMQ_HOST:localhost}"
+    port: "${RABBITMQ_PORT:5672}"
+    username: "${RABBITMQ_USERNAME:user}"
+    password: "${RABBITMQ_PASSWORD:password}"
+    exchange-name: "${RABBITMQ_EXCHANGE_NAME:SALESERVICE.EXCHANGE}"
+    queue-name: "${RABBITMQ_QUEUE_NAME:product.inventory.queue}"
+    routing-key: "${RABBITMQ_ROUTING_KEY:SALESERVICE_ROUTING_KEY}"
 
 eureka:
   client:

@@ -6,12 +6,23 @@ spring:
   config:
     import: configserver:${SPRING_CLOUD_CONFIG_URL:http://localhost:8888}
   datasource:
-    url: jdbc:postgresql://productservice-db:5432/productservice-db
-    username: user
-    password: password
+    url: "${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:6602/productservice_db}"
+    username: "${SPRING_DATASOURCE_USERNAME:user}"
+    password: "${SPRING_DATASOURCE_PASSWORD:password}"
   jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
+  rabbitmq:
+    host: "${RABBITMQ_HOST:localhost}"
+    port: "${RABBITMQ_PORT:5672}"
+    username: "${RABBITMQ_USERNAME:user}"
+    password: "${RABBITMQ_PASSWORD:password}"
+    exchange-name: "${RABBITMQ_EXCHANGE_NAME:SALESERVICE.EXCHANGE}"
+    queue-name: "${RABBITMQ_QUEUE_NAME:product.inventory.queue}"
+    routing-key: "${RABBITMQ_ROUTING_KEY:SALESERVICE_ROUTING_KEY}"
 eureka:
   client:
     service-url:

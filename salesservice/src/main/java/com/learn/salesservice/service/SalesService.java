@@ -28,22 +28,30 @@ public class SalesService {
 
     private final ProductService productService;
 
+    private final SalesPublisher salesPublisher;
+
     @Value("${app.product-service.url}")
     private String PRODUCTSERVICE_URL;
 
     @Value("${app.user-service.url}")
     private String USERSERVICE_URL;
 
-    SalesService(SalesRepository salesRepository, WebClient.Builder webClientBuilder, ProductService productService) {
+
+    SalesService(SalesRepository salesRepository, WebClient.Builder webClientBuilder, ProductService productService
+    , SalesPublisher salesPublisher) {
         this.salesRepository = salesRepository;
         this.webClient = webClientBuilder.build();
         this.productService = productService;
+        this.salesPublisher = salesPublisher;
     }
 
     // Create a new Sales record
     public Sales createSales(Sales sales) {
         log.info("Creating sales record: {}", sales);
-        return salesRepository.save(sales);
+        Sales savedSales =  salesRepository.save(sales);
+        salesPublisher.publishProductSold(sales.getProductId(), 1);
+
+        return savedSales;
     }
 
     // Get all Sales records
