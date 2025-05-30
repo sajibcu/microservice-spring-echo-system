@@ -27,8 +27,12 @@ This project implements a microservice architecture with Spring Boot, featuring:
     [UserService DB] [ProductService DB] [SalesService DB]     │
             │              │              │                    │
             └──────────────┼──────────────┘─────────────────────
-                          ▼
-                    [ELK Stack]
+                          │
+                    ┌─────┴─────┐
+                    ▼           ▼
+              [ELK Stack]  [Elastic APM]
+                               │
+                         [Kibana APM UI]
 ```
 
 ## Services & Ports
@@ -44,6 +48,8 @@ This project implements a microservice architecture with Spring Boot, featuring:
 | Elasticsearch   | 9200, 9300       | -             | Search & Analytics |
 | Logstash        | 5000, 5044, 9600 | -             | Log Ingestion |
 | Kibana          | 5601             | -             | Log Visualization |
+| APM Server      | 8200             | -             | APM Data Collection |
+| APM UI          | 5601/apm         | -             | APM Dashboard |
 
 ## Prerequisites
 - Docker and Docker Compose
@@ -73,6 +79,30 @@ docker-compose up -d --build
 - Sales Service: http://localhost:8083
 - Auth Service: http://localhost:8084
 - Kibana: http://localhost:5601
+
+## Monitoring with Elastic APM
+
+This project includes Elastic APM for application performance monitoring. The following services are instrumented with APM:
+
+- API Gateway
+- User Service
+- Product Service
+- Sales Service
+- Auth Service
+
+### Accessing APM
+
+1. Open Kibana: http://localhost:5601
+2. Navigate to "APM" in the left sidebar
+3. Explore application metrics, traces, and performance data
+
+### Key APM Features
+
+- **Distributed Tracing**: Track requests across microservices
+- **Performance Metrics**: Monitor response times and error rates
+- **Service Maps**: Visualize service dependencies
+- **Error Tracking**: Identify and diagnose issues quickly
+- **JVM Metrics**: Monitor application health and resource usage
 
 ## API Documentation
 

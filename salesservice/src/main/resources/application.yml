@@ -72,3 +72,8 @@ management:
   endpoint:
     health:
       show-details: always
+elastic:
+  apm:
+    enabled: true
+  application:
+    package: com.learn.salesservice

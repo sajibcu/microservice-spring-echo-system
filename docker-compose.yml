@@ -58,7 +58,7 @@ services:
       retries: 3
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.0.1
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
@@ -83,7 +83,7 @@ services:
       retries: 3
 
   logstash:
-    image: docker.elastic.co/logstash/logstash:8.12.0
+    image: docker.elastic.co/logstash/logstash:9.0.1
     container_name: logstash
     volumes:
       - type: bind
@@ -108,12 +108,15 @@ services:
         condition: service_healthy
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:8.12.0
+    image: docker.elastic.co/kibana/kibana:9.0.1
     container_name: kibana
     ports:
       - "5601:5601"
     environment:
       - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - ELASTIC_APM_SERVER_URL=http://apm-server:8200
+      - ELASTIC_APM_SECRET_TOKEN=xxVpmQB2HMzCL9PgBHVrnxjNXXw5J7bd79DFm6sjBJR5HPXDhcF8MSb3vv4bpg44
+
     networks:
       - backend
     depends_on:
@@ -124,6 +127,30 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+  apm-server:
+    image: docker.elastic.co/apm/apm-server:9.0.1
+    container_name: apm-server
+    ports:
+      - "8200:8200"
+    environment:
+      - output.elasticsearch.hosts=["elasticsearch:9200"]
+      - apm-server.rum.enabled=true
+      - apm.server.kibana.enabled=true
+      - setup.kibana.host=http://kibana:5601
+      - apm-server.host=0.0.0.0:8200
+      - apm-server.secret_token=xxVpmQB2HMzCL9PgBHVrnxjNXXw5J7bd79DFm6sjBJR5HPXDhcF8MSb3vv4bpg44
+    networks:
+      - backend
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      kibana:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "--write-out", "'HTTP %{http_code}'", "--silent", "--output", "/dev/null", "http://localhost:8200/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   eureka-server:
     build:
@@ -148,6 +175,10 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://userservice-db:5432/userservice_db
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
+      ELASTIC_APM_SERVICE_NAME: userservice
+      ELASTIC_APM_SERVER_URL: http://apm-server:8200
+      ELASTIC_APM_SECRET_TOKEN: xxVpmQB2HMzCL9PgBHVrnxjNXXw5J7bd79DFm6sjBJR5HPXDhcF8MSb3vv4bpg44
+      ELASTIC_APM_ENVIRONMENT: development
     ports:
       - "8081:8080"
     depends_on:
@@ -168,6 +199,10 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://userservice-db:5432/userservice_db
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
+      ELASTIC_APM_SERVICE_NAME: authservice
+      ELASTIC_APM_SERVER_URL: http://apm-server:8200
+      ELASTIC_APM_SECRET_TOKEN: xxVpmQB2HMzCL9PgBHVrnxjNXXw5J7bd79DFm6sjBJR5HPXDhcF8MSb3vv4bpg44
+      ELASTIC_APM_ENVIRONMENT: development
     ports:
       - "8084:8080"
     depends_on:
@@ -193,6 +228,10 @@ services:
       RABBITMQ_PORT: 5672
       RABBITMQ_USERNAME: user
       RABBITMQ_PASSWORD: password
+      ELASTIC_APM_SERVICE_NAME: productservice
+      ELASTIC_APM_SERVER_URL: http://apm-server:8200
+      ELASTIC_APM_SECRET_TOKEN: xxVpmQB2HMzCL9PgBHVrnxjNXXw5J7bd79DFm6sjBJR5HPXDhcF8MSb3vv4bpg44
+      ELASTIC_APM_ENVIRONMENT: development
     ports:
       - "8082:8080"
     depends_on:
@@ -221,6 +260,11 @@ services:
       RABBITMQ_PORT: 5672
       RABBITMQ_USERNAME: user
       RABBITMQ_PASSWORD: password
+      ELASTIC_APM_SERVICE_NAME: salesservice
+      ELASTIC_APM_SERVER_URL: http://apm-server:8200
+      ELASTIC_APM_SECRET_TOKEN: xxVpmQB2HMzCL9PgBHVrnxjNXXw5J7bd79DFm6sjBJR5HPXDhcF8MSb3vv4bpg44
+      ELASTIC_APM_ENVIRONMENT: development
+#      JAVA_TOOL_OPTIONS: -javaagent:/app/elastic-apm-agent.jar
     ports:
       - "8083:8080"
     depends_on:
@@ -240,6 +284,10 @@ services:
       - "1001:1001"
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      ELASTIC_APM_SERVICE_NAME: apigateway
+      ELASTIC_APM_SERVER_URL: http://apm-server:8200
+      ELASTIC_APM_SECRET_TOKEN: xxVpmQB2HMzCL9PgBHVrnxjNXXw5J7bd79DFm6sjBJR5HPXDhcF8MSb3vv4bpg44
+      ELASTIC_APM_ENVIRONMENT: development
     depends_on:
       - eureka-server
       - userservice
