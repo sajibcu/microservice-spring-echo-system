@@ -7,6 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @Setter
 @Getter
+@Builder
 public class UserDto {
 
     private Long id;
