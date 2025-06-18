@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Use spring property for application name -->
+    <springProperty name="serviceName" source="spring.application.name"/>
+
+    <!-- Include default Spring Boot logging -->
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+    <!-- Optional: Write logs to a test-specific file -->
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>build/test-logs/${serviceName}-test.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Avoid Logstash in tests unless you're testing log forwarding -->
+    <!-- Commented out, but keep if testing log forwarding -->
+    <!--
+    <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <destination>logstash:5000</destination>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <customFields>{"service_name":"${serviceName}"}</customFields>
+        </encoder>
+    </appender>
+    -->
+
+    <!-- Root logger: INFO to reduce noise during tests -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+        <!-- <appender-ref ref="LOGSTASH"/> -->
+    </root>
+
+    <!-- Set specific package logging to DEBUG for detailed test output -->
+    <logger name="com.learn.productservice" level="DEBUG"/>
+</configuration>
