@@ -30,4 +30,5 @@ public class Product {
     @Min(0)
     private Integer quantity;
     private Long addedBy;
+    // test comment
 }
