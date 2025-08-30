@@ -37,3 +37,5 @@ elastic:
     enabled: true
   application:
     package: com.learn.productservice
+graphql:
+  path: /graphql

@@ -44,6 +44,12 @@ spring:
             - Path=/api/v1/product/**
           filters:
             - AuthenticationFilter
+        - id: product-service-graphql
+          uri: lb://PRODUCTSERVICE
+          predicates:
+            - Path=/graphql/**
+          filters:
+            - AuthenticationFilter
 
 logging:
   level:
